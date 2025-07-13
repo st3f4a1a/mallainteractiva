@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Interactiva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding-top: 50px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 100px);
+      grid-gap: 10px;
+    }
+    .cell {
+      background-color: #ddd;
+      width: 100px;
+      height: 100px;
+      text-align: center;
+      line-height: 100px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .cell:hover {
+      background-color: #00aaff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="grid" id="malla"></div>
+
+  <script>
+    const grid = document.getElementById('malla');
+    for (let i = 0; i < 25; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = i + 1;
+      cell.onclick = () => alert(`Clic en la celda ${i + 1}`);
+      grid.appendChild(cell);
+    }
+  </script>
+
+</body>
+</html>
