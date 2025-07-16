@@ -2,48 +2,94 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Malla Interactiva</title>
+  <title>Malla Interactiva Terapia Ocupacional</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      padding-top: 50px;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 100px);
-      grid-gap: 10px;
-    }
-    .cell {
-      background-color: #ddd;
-      width: 100px;
-      height: 100px;
-      text-align: center;
-      line-height: 100px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .cell:hover {
-      background-color: #00aaff;
+    body {font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5;}
+    h2 {
+      background: #004d40;
       color: white;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .semestre {
+      margin-bottom: 20px;
+    }
+    .ramo {
+      background: white;
+      padding: 10px;
+      margin: 5px 0;
+      border-left: 5px solid #26a69a;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .ramo:hover {
+      background: #e0f2f1;
+    }
+    .completado {
+      text-decoration: line-through;
+      background: #c8e6c9 !important;
+      border-left-color: #388e3c !important;
+      color: #555;
+    }
+    .bloqueado {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
-
-  <div class="grid" id="malla"></div>
+  <h1>Malla Interactiva - Terapia Ocupacional</h1>
+  <div id="malla"></div>
 
   <script>
-    const grid = document.getElementById('malla');
-    for (let i = 0; i < 25; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.textContent = i + 1;
-      cell.onclick = () => alert(`Clic en la celda ${i + 1}`);
-      grid.appendChild(cell);
-    }
-  </script>
+    const ramos = [...]; // ← mismo array de ramos que ya incluimos antes (omitido por brevedad)
 
+    const STORAGE_KEY = "mallaTO_aprobados";
+    let completados = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
+
+    function guardarProgreso() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...completados]));
+    }
+
+    function crearMalla() {
+      const contenedor = document.getElementById("malla");
+      contenedor.innerHTML = "";
+
+      ramos.forEach((semestre, i) => {
+        const div = document.createElement("div");
+        div.className = "semestre";
+        div.innerHTML = `<h2>${i + 1}° Semestre</h2>`;
+
+        semestre.forEach(ramo => {
+          const ramoDiv = document.createElement("div");
+          ramoDiv.className = "ramo";
+          ramoDiv.textContent = ramo.nombre;
+
+          const requisitos = ramo.requisitos || [];
+          const bloqueado = requisitos.length > 0 && !requisitos.every(r => completados.has(r));
+
+          if (completados.has(ramo.nombre)) ramoDiv.classList.add("completado");
+          else if (bloqueado) ramoDiv.classList.add("bloqueado");
+
+          ramoDiv.addEventListener("click", () => {
+            if (bloqueado) return;
+            if (completados.has(ramo.nombre)) {
+              completados.delete(ramo.nombre);
+            } else {
+              completados.add(ramo.nombre);
+            }
+            guardarProgreso();
+            crearMalla();
+          });
+
+          div.appendChild(ramoDiv);
+        });
+        contenedor.appendChild(div);
+      });
+    }
+
+    crearMalla();
+  </script>
 </body>
 </html>
